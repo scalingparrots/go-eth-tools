@@ -7,8 +7,10 @@ import (
 )
 
 const (
-	// PolygonGasStationEndpoint is the endpoint for the Polygon gas station
-	PolygonGasStationEndpoint = "https://gasstation-mainnet.matic.network"
+	// MainnetEndpoint is the mainnet endpoint for the Polygon gas station
+	MainnetEndpoint = "https://gasstation-mainnet.matic.network"
+	// TestnetEndpoint is the testnet endpoint for the Polygon gas station
+	TestnetEndpoint = "https://gasstation-mumbai.matic.today"
 )
 
 // Response represents the response from the Polygon gas station
@@ -30,9 +32,20 @@ type Response struct {
 	BlockNumber      int     `json:"blockNumber"`
 }
 
+type PolygonGasStation struct {
+	Endpoint string
+}
+
+func NewPolygonGasStation(endpoint string) *PolygonGasStation {
+	if endpoint == "" {
+		endpoint = TestnetEndpoint
+	}
+	return &PolygonGasStation{Endpoint: endpoint}
+}
+
 // FetchGasPriceFromPolygon fetches the gas price from the Polygon gas station
-func FetchGasPriceFromPolygon() (float64, float64, float64, error) {
-	resp, err := http.Get(PolygonGasStationEndpoint)
+func (gasStation PolygonGasStation) FetchGasPriceFromPolygon() (float64, float64, float64, error) {
+	resp, err := http.Get(gasStation.Endpoint)
 	if err != nil {
 		return 0, 0, 0, err
 	}
