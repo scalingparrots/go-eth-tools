@@ -37,8 +37,8 @@ type PolygonGasStation struct {
 }
 
 func NewPolygonGasStation(endpoint string) *PolygonGasStation {
-	if endpoint == "" {
-		endpoint = TestnetEndpoint
+	if endpoint != MainnetEndpoint && endpoint != TestnetEndpoint {
+		panic("Invalid endpoint")
 	}
 	return &PolygonGasStation{Endpoint: endpoint}
 }
