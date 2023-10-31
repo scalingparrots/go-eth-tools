@@ -2,9 +2,8 @@ package message
 
 import (
 	"encoding/hex"
-	ethcommon "github.com/ethereum/go-ethereum/common"
+	"fmt"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/storyicon/sigverify"
 )
 
 // SignMessage signs a message using a private key
@@ -14,7 +13,7 @@ func SignMessage(message string, privateKey string) (string, error) {
 		return "", err
 	}
 
-	data := []byte(message)
+	data := []byte(fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(message), message))
 	hash := crypto.Keccak256Hash(data)
 
 	signature, err := crypto.Sign(hash.Bytes(), privateKeyECDSA)
@@ -26,21 +25,26 @@ func SignMessage(message string, privateKey string) (string, error) {
 }
 
 // VerifySignature verifies a signature using a public key
-func VerifySignature(message string, signature string, address string) (bool, error) {
-	valid, err := sigverify.VerifyEllipticCurveHexSignatureEx(
-		ethcommon.HexToAddress(address),
-		[]byte(message),
-		signature,
-	)
-
+func VerifySignature(message string, signatureHex string, address string) (bool, error) {
+	signature, err := hex.DecodeString(signatureHex)
 	if err != nil {
 		return false, err
 	}
 
-	return valid, nil
+	// Use the standard Ethereum prefix for messages during verification.
+	data := []byte(fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(message), message))
+	hash := crypto.Keccak256Hash(data)
+
+	pubKey, err := crypto.SigToPub(hash.Bytes(), signature)
+	if err != nil {
+		return false, err
+	}
+
+	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
+	return recoveredAddr.Hex() == address, nil
 }
 
 // PrepareMessage prepares a message to be signed
 func PrepareMessage(msg, addr string) string {
-	return "\x19Ethereum Signed Message:\n" + string(len(msg)) + msg + addr
+	return fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(msg), msg)
 }
