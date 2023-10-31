@@ -2,10 +2,7 @@ module github.com/scalingparrots/go-eth-tools
 
 go 1.20
 
-require (
-	github.com/ethereum/go-ethereum v1.13.4
-	github.com/storyicon/sigverify v1.1.0
-)
+require github.com/ethereum/go-ethereum v1.13.4
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
