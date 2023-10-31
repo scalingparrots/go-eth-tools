@@ -67,7 +67,8 @@ func (e *RPCClient) prepareTransaction(ctx context.Context) (*bind.TransactOpts,
 	}
 
 	// Get the current gas price from polygon station
-	fastGasFee, fastGasPriorityFee, _, err := gas.FetchGasPriceFromPolygon()
+	e.gasStation = "https://gasstation-mainnet.matic.network"
+	fastGasFee, fastGasPriorityFee, _, err := gas.NewPolygonGasStation(e.gasStation).FetchGasPriceFromPolygon()
 	if err != nil {
 		return nil, err
 	}
